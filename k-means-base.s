@@ -116,7 +116,7 @@ printPoint:
     
 
 ### cleanScreen
-# Limpa todos os pontos do ecr√£
+# Limpa todos os pontos do ecr„
 # Argumentos: nenhum
 # Retorno: nenhum
 
@@ -131,7 +131,7 @@ cleanScreen:
     addi t0, t0, 4
     mul t0, t0, a2
     add a4, a4, t0
-    li a5, black                  #Defines colour
+    li a5, white                  #Defines colour
     
 cleanloop:
     bgt a3, a4, endcleanloop      #If both vectors pointers meet, ends loop
