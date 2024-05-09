@@ -118,7 +118,7 @@ printPoint:
     
 
 ### cleanScreen
-# Limpa todos os pontos do ecrã
+# Limpa todos os pontos do ecrï¿½
 # Argumentos: nenhum
 # Retorno: nenhum
 
@@ -157,17 +157,21 @@ printClusters:
     la t0, points
     lw t1, n_points
     li a2, purple
+    addi sp, sp, -4
+    sw ra, 0(sp)
     
 printLoop:
     beqz t1, end
     lw a0, 0(t0)
     lw a1, 4(t0)
-    jal ra, printPoint
+    jal printPoint
     addi t0, t0, 8
     addi t1, t1, -1
     j printLoop
     
 end:
+    lw ra, 0(sp)
+    addi sp, sp, 4
     jr ra
 
 ### printCentroids
