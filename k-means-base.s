@@ -1,13 +1,13 @@
 #
 # IAC 2023/2024 k-means
 # 
-# Grupo:
-# Campus:
+# Grupo: 1
+# Campus: Alameda
 #
 # Autores:
-# n_aluno, nome
-# n_aluno, nome
-# n_aluno, nome
+# 110263, Beatriz Teixeira
+# 109974, Mariana Carvalho
+# 109643, Tiago Mateus
 #
 # Tecnico/ULisboa
 
@@ -73,8 +73,10 @@ k:           .word 1
 
 colors:      .word 0xff0000, 0x00ff00, 0x0000ff  # Cores dos pontos do cluster 0, 1, 2, etc.
 
-.equ         black      0
-.equ         white      0xffffff
+.equ        black         0
+.equ        white         0xffffff
+.equ        purple        0xc89eff
+.equ        pink        0xf7d1d8 
 
 
 
@@ -123,7 +125,7 @@ printPoint:
 cleanScreen:
     li a0, LED_MATRIX_0_HEIGHT   #Gets the dimensions of the display
     li a1, LED_MATRIX_0_WIDTH    
-    mul a2, a0, a1               #Arrenges the dimensions of the display into single 4 bit vector
+    mul a2, a0, a1               #Arranges the dimensions of the display into single 4 bit vector
     la a3, LED_MATRIX_0_BASE     #Loads display vector
     la a4, LED_MATRIX_0_BASE     #Loads seconds display vetor
     
@@ -131,7 +133,7 @@ cleanScreen:
     addi t0, t0, 4
     mul t0, t0, a2
     add a4, a4, t0
-    li a5, white                  #Defines colour
+    li a5, black                  #Defines colour
     
 cleanloop:
     bgt a3, a4, endcleanloop      #If both vectors pointers meet, ends loop
@@ -152,8 +154,21 @@ endcleanloop:
 
 printClusters:
     # POR IMPLEMENTAR (1a e 2a parte)
+    la t0, points
+    lw t1, n_points
+    li a2, purple
+    
+printLoop:
+    beqz t1, end
+    lw a0, 0(t0)
+    lw a1, 4(t0)
+    jal ra, printPoint
+    addi t0, t0, 8
+    addi t1, t1, -1
+    j printLoop
+    
+end:
     jr ra
-
 
 ### printCentroids
 # Pinta os centroides na LED matrix
@@ -181,9 +196,12 @@ calculateCentroids:
 # Argumentos: nenhum
 # Retorno: nenhum
 
-mainSingleCluster:
+#----------------------------------------------------------------------------------------
+mainSingleCluster:                  #~~MAIN~~
     
     jal ra, cleanScreen
+    jal ra, printClusters
+    
     
     #1. Coloca k=1 (caso nao esteja a 1)
     # POR IMPLEMENTAR (1a parte)
@@ -202,7 +220,7 @@ mainSingleCluster:
 
     #6. Termina
     jr ra
-
+#------------------------------------------------------------------------------------------
 
 
 ### manhattanDistance
