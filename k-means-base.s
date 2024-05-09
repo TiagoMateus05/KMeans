@@ -121,26 +121,28 @@ printPoint:
 # Retorno: nenhum
 
 cleanScreen:
-    li a0, LED_MATRIX_0_HEIGHT
-    li a1, LED_MATRIX_0_WIDTH
-    mul a2, a0, a1
-    la a3, LED_MATRIX_0_BASE
-    la a4, LED_MATRIX_0_BASE
+    li a0, LED_MATRIX_0_HEIGHT   #Gets the dimensions of the display
+    li a1, LED_MATRIX_0_WIDTH    
+    mul a2, a0, a1               #Arrenges the dimensions of the display into single 4 bit vector
+    la a3, LED_MATRIX_0_BASE     #Loads display vector
+    la a4, LED_MATRIX_0_BASE     #Loads seconds display vetor
+    
+    #Gets the second display vector to the other end
     addi t0, t0, 4
     mul t0, t0, a2
     add a4, a4, t0
-    li a5, black
+    li a5, black                  #Defines colour
     
 cleanloop:
-    bgt a3, a4, endcleanloop
-    sw a5, 0(a3)
-    sw a5, 0(a4)
-    addi a3, a3, 4
-    addi a4, a4, -4
-    j cleanloop
+    bgt a3, a4, endcleanloop      #If both vectors pointers meet, ends loop
+    sw a5, 0(a3)                  #Changes Colour in the begining
+    sw a5, 0(a4)                  #Changes Colour in the end
+    addi a3, a3, 4                #Jumps to next
+    addi a4, a4, -4               #Jumps to next
+    j cleanloop                   #Returns to loop
     
 endcleanloop:
-    jr ra
+    jr ra                         #Returns Function
 
     
 ### printClusters
