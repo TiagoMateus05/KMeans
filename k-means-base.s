@@ -198,19 +198,14 @@ calculateCentroids:
 
 #----------------------------------------------------------------------------------------
 mainSingleCluster:                  #~~MAIN~~
-    
-    jal ra, cleanScreen
-    jal ra, printClusters
-    
-    
     #1. Coloca k=1 (caso nao esteja a 1)
     # POR IMPLEMENTAR (1a parte)
 
     #2. cleanScreen
-    # POR IMPLEMENTAR (1a parte)
+    jal ra, cleanScreen
 
     #3. printClusters
-    # POR IMPLEMENTAR (1a parte)
+    jal ra, printClusters
 
     #4. calculateCentroids
     # POR IMPLEMENTAR (1a parte)
