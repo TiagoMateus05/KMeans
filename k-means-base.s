@@ -207,8 +207,39 @@ printCentroids:
 
 calculateCentroids:
     # POR IMPLEMENTAR (1a e 2a parte)
+    la t0, centroids
+    la t1, points
+    lw t2, n_points
+    addi t3, zero, 0
+    addi t4, zero, 0
+    addi sp, sp, -4
+    sw ra, 0(sp)
+    jal ra, loop_points
+    div a0, t4, t2
+    
+    la t1, points
+    addi t1, t1, 4
+    addi t3, zero, 0
+    addi t4, zero, 0
+    jal ra, loop_points
+    div a1, t4, t2
+    lw ra, 0(sp)
+    sw a0, 0(t0)
+    sw a1, 4(t0)
+    addi sp, sp, 4
     jr ra
+    
 
+loop_points:
+    lw t5, 0(t1)
+    addi, t3, t3, 1
+    add t4, t4, t5
+    bge t3, t2, end_loop_points
+    addi t1, t1 8
+    j loop_points
+    
+end_loop_points:
+    jr ra
 
 ### mainSingleCluster
 # Funcao principal da 1a parte do projeto.
@@ -221,20 +252,22 @@ mainSingleCluster:                  #~~MAIN~~
     # POR IMPLEMENTAR (1a parte)
 
     #2. cleanScreen
-#    jal ra, cleanScreen
+    jal ra, cleanScreen
 
     #3. printClusters
-#    jal ra, printClusters
+    jal ra, printClusters
 
     #4. calculateCentroids
     # POR IMPLEMENTAR (1a parte)
-
+    jal ra, calculateCentroids
+    
     #5. printCentroids
     jal ra, printCentroids
     # POR IMPLEMENTAR (1a parte)
 
     #6. Termina
-    jr ra
+    termina:
+        j termina
 #------------------------------------------------------------------------------------------
 
 
