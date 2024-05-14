@@ -118,7 +118,7 @@ printPoint:
     
 
 ### cleanScreen
-# Limpa todos os pontos do ecrã
+# Limpa todos os pontos do ecrï¿½
 # Argumentos: nenhum
 # Retorno: nenhum
 
@@ -188,12 +188,16 @@ end:
     li a2, black
     addi sp, sp, -4
     sw ra, 0(sp)
-    jal ra printLoop
-    jr ra
+    j printLoop
 
 printCentroids:
     # POR IMPLEMENTAR (1a e 2a parte)
-    jr ra
+    la t0, centroids
+    lw t1, k
+    li a2, black
+    addi sp, sp, -4
+    sw ra, 0(sp)
+    j printLoop
     
 
 ### calculateCentroids
@@ -217,10 +221,10 @@ mainSingleCluster:                  #~~MAIN~~
     # POR IMPLEMENTAR (1a parte)
 
     #2. cleanScreen
-    jal ra, cleanScreen
+#    jal ra, cleanScreen
 
     #3. printClusters
-    jal ra, printClusters
+#    jal ra, printClusters
 
     #4. calculateCentroids
     # POR IMPLEMENTAR (1a parte)
