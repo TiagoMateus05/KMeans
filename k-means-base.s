@@ -75,9 +75,9 @@ colors:      .word 0xff0000, 0x00ff00, 0x0000ff  # Cores dos pontos do cluster 0
 
 .equ        black         0
 .equ        white         0xffffff
-.equ        purple        0xc89eff
-.equ        pink        0xf7d1d8 
-
+.equ        red           0xff0000
+.equ        green         0x00ff00
+.equ        blue          0x0000ff
 
 
 # Codigo
@@ -133,7 +133,7 @@ cleanScreen:
     addi t0, t0, 4
     mul t0, t0, a2
     add a4, a4, t0
-    li a5, black                  #Defines colour
+    li a5, white                 #Defines colour
     
 cleanloop:
     bgt a3, a4, endcleanloop      #If both vectors pointers meet, ends loop
@@ -156,8 +156,14 @@ printClusters:
     # POR IMPLEMENTAR (1a e 2a parte)
     la t0, points
     lw t1, n_points
-    li a2, purple
-    
+    li a2, red
+    addi sp, sp, -4
+    sw ra, 0(sp)
+  
+### printLoop
+# Printa pontos num vetor
+# Argumentos: nenhum
+# Retorno: nenhum
 printLoop:
     beqz t1, end
     lw a0, 0(t0)
@@ -168,6 +174,8 @@ printLoop:
     j printLoop
     
 end:
+    lw ra, 0(sp)
+    addi sp, sp, 4
     jr ra
 
 ### printCentroids
@@ -175,6 +183,13 @@ end:
 # Nota: deve ser usada a cor preta (black) para todos os centroides
 # Argumentos: nenhum
 # Retorno: nenhum
+    la t0, centroids
+    lw t1, k
+    li a2, black
+    addi sp, sp, -4
+    sw ra, 0(sp)
+    jal ra printLoop
+    jr ra
 
 printCentroids:
     # POR IMPLEMENTAR (1a e 2a parte)
@@ -211,6 +226,7 @@ mainSingleCluster:                  #~~MAIN~~
     # POR IMPLEMENTAR (1a parte)
 
     #5. printCentroids
+    jal ra, printCentroids
     # POR IMPLEMENTAR (1a parte)
 
     #6. Termina
