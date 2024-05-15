@@ -253,10 +253,10 @@ mainSingleCluster:                  #~~MAIN~~
     # POR IMPLEMENTAR (1a parte)
 
     #2. cleanScreen
-    #jal ra, cleanScreen
+    jal ra, cleanScreen
 
     #3. printClusters
-    #jal ra, printClusters
+    jal ra, printClusters
 
     #4. calculateCentroids
     # POR IMPLEMENTAR (1a parte)
