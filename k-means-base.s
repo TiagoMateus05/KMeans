@@ -130,7 +130,7 @@ cleanScreen:
     la a4, LED_MATRIX_0_BASE     #Loads seconds display vetor
     
     #Gets the second display vector to the other end
-    addi t0, t0, 4
+    addi t0, zero, 4
     mul t0, t0, a2
     add a4, a4, t0
     li a5, white                 #Defines colour
@@ -255,7 +255,10 @@ end_loop_points:
 mainSingleCluster:                  #~~MAIN~~
     #1. Coloca k=1 (caso nao esteja a 1)
     # POR IMPLEMENTAR (1a parte)
-
+    la t0, k
+    addi t1, zero, 1
+    sw t1, 0(t0)
+    
     #2. cleanScreen
     jal ra, cleanScreen
 
