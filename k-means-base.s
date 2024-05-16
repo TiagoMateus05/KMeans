@@ -162,28 +162,28 @@ endcleanloop:
 
 printClusters:
     # POR IMPLEMENTAR (1a e 2a parte)
-    la t0, points            #Loads 
-    lw t1, n_points
-    li a2, red
-    addi sp, sp, -4
-    sw ra, 0(sp)
+    la t0, points         #Loads Cluster Points Vector
+    lw t1, n_points       #Loads Number of Points
+    li a2, red            #Loads Colour
+    addi sp, sp, -4       #Allocates Memory in Stack
+    sw ra, 0(sp)          #Saves Return Address and goes to PrintLoop
   
 ### printLoop
 # Printa pontos num vetor
 # Argumentos: nenhum
 # Retorno: nenhum
 printLoop:
-    beqz t1, end
-    lw a0, 0(t0)
-    lw a1, 4(t0)
-    jal ra, printPoint
-    addi t0, t0, 8
-    addi t1, t1, -1
-    j printLoop
+    beqz t1, end           #End Condition
+    lw a0, 0(t0)           #Loads X Point
+    lw a1, 4(t0)           #Loads Y Point
+    jal ra, printPoint     #Calls PrintPoint Function
+    addi t0, t0, 8         #Jumps to next point
+    addi t1, t1, -1        #Loop Counter
+    j printLoop            #Goes to Print Loop
     
 end:
-    lw ra, 0(sp)
-    addi sp, sp, 4         
+    lw ra, 0(sp)           #Loads Return Adress
+    addi sp, sp, 4         #Free Stack Memory       
     jr ra                  #Returns to where function was called
 
 ### printCentroids
