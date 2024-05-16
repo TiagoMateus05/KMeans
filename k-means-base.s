@@ -144,9 +144,8 @@ cleanScreen:
     la a4, LED_MATRIX_0_BASE     #Carrega o segundo vetor que se ve no ecra
     
     #Obtem o vetor que comeca no fim do ecra
-    addi t0, zero, 4
-    mul t0, t0, a2
-    add a4, a4, t0
+    slli a2, a2, 2
+    add a4, a4, a2
     li a5, lightpurple             #Define a cor
     
 cleanloop:
