@@ -138,9 +138,17 @@ cleanScreen:
 cleanloop:
     bgt a3, a4, endcleanloop      #If both vectors pointers meet, ends loop
     sw a5, 0(a3)                  #Changes Colour in the begining
+    sw a5, 4(a3)
+    sw a5, 8(a3)
+    sw a5, 12(a3)
+    
     sw a5, 0(a4)                  #Changes Colour in the end
-    addi a3, a3, 4                #Jumps to next
-    addi a4, a4, -4               #Jumps to next
+    sw a5, -4(a4)
+    sw a5, -8(a4)
+    sw a5, -12(a4)
+    
+    addi a3, a3, 16                #Jumps to next
+    addi a4, a4, -16                #Jumps to next
     j cleanloop                   #Returns to loop
     
 endcleanloop:
@@ -154,7 +162,7 @@ endcleanloop:
 
 printClusters:
     # POR IMPLEMENTAR (1a e 2a parte)
-    la t0, points
+    la t0, points            #Loads 
     lw t1, n_points
     li a2, red
     addi sp, sp, -4
@@ -175,29 +183,22 @@ printLoop:
     
 end:
     lw ra, 0(sp)
-    addi sp, sp, 4
-    jr ra
+    addi sp, sp, 4         
+    jr ra                  #Returns to where function was called
 
 ### printCentroids
 # Pinta os centroides na LED matrix
 # Nota: deve ser usada a cor preta (black) para todos os centroides
 # Argumentos: nenhum
 # Retorno: nenhum
-    la t0, centroids
-    lw t1, k
-    li a2, black
-    addi sp, sp, -4
-    sw ra, 0(sp)
-    j printLoop
-
 printCentroids:
     # POR IMPLEMENTAR (1a e 2a parte)
-    la t0, centroids
-    lw t1, k
-    li a2, black
-    addi sp, sp, -4
-    sw ra, 0(sp)
-    j printLoop
+    la t0, centroids       #Loads Centroid Vectors
+    lw t1, k               #Loads Number of Centroids
+    li a2, black           #Loads Colour of Centroid
+    addi sp, sp, -4        #Allocate Space in stack
+    sw ra, 0(sp)           #Saves Adress
+    j printLoop            #Starts Loop
     
 
 ### calculateCentroids
@@ -207,40 +208,43 @@ printCentroids:
 
 calculateCentroids:
     # POR IMPLEMENTAR (1a e 2a parte)
-    addi sp, sp, -8
-    la t0, centroids
-    la t1, points
-    lw t2, n_points
+    addi sp, sp, -8        #Allocate Space in Stack to save Arguments
+    la t0, centroids       #Loads centroids Vector
+    la t1, points          #Loads Points In vector
+    lw t2, n_points        #Loads Number of Points
+    
+    #Set variables to zero
     addi t3, zero, 0
     addi t4, zero, 0
-    sw ra, 0(sp)
-    sw t2, 4(sp)
-    jal ra, loop_points
     
-    lw t2, 4(sp)
-    div a0, t3, t2
-    div a1, t4, t2
+    sw ra, 0(sp)           #Saves return adress
+    sw t2, 4(sp)           #Saves Temporary Variable
+    jal ra, loop_points    #Calculate Sum of Points calling Loop_Points function
+
+    lw t2, 4(sp)           #Loads The Temporary Varible Stored Before
+    div a0, t3, t2         #Calculates X Centroid
+    div a1, t4, t2         #Calculates Y Centroid
     
-    lw ra, 0(sp)
-    sw a0, 0(t0)
-    sw a1, 4(t0)
-    addi sp, sp, 8
-    jr ra
+    lw ra, 0(sp)           #Loads Return Adress
+    sw a0, 0(t0)           #Saves Centroid X in vector
+    sw a1, 4(t0)           #Saves Centroid Y in vector
+    addi sp, sp, 8         #Frees Space in Stack 
+    jr ra                  #Return to where it was called
     
 
 loop_points:
-    lw t5, 0(t1)
-    lw t6, 4(t1)
+    lw t5, 0(t1)           #Loads Current X point
+    lw t6, 4(t1)           #Loads Current Y point
     
-    addi, t2, t2, -1
-    add t3, t3, t5
-    add t4, t4, t6
-    blez t2, end_loop_points
-    addi t1, t1 8
-    j loop_points
+    addi, t2, t2, -1       #Counter os Number os Points
+    add t3, t3, t5         #Adds X point to average X
+    add t4, t4, t6         #Adds Y point to average Y
+    blez t2, end_loop_points    #Checks Loop Endding Condition
+    addi t1, t1 8          #Jumps to next Point
+    j loop_points          #Continues Loop
     
 end_loop_points:
-    jr ra
+    jr ra                  #Return to where function was called
 
 ### mainSingleCluster
 # Funcao principal da 1a parte do projeto.
