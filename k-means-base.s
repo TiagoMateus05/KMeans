@@ -70,8 +70,8 @@ k:           .word 1
 
 # Strings para o output
 
-Primeiro:        .string "A resetar o número de centroids...\n"
-Segundo:        .string "A limpar o ecrã...\n"
+Primeiro:        .string "A resetar o n?mero de centroids...\n"
+Segundo:        .string "A limpar o ecr?...\n"
 Terceiro:        .string "A preencher os pontos dos clusters...\n"
 Quarto:        .string "A calcular o centroid...\n"
 Quinto:        .string "A preencher o ponto correspondente ao centroid...\n"
@@ -126,11 +126,7 @@ printPoint:
     
 
 ### cleanScreen
-<<<<<<< HEAD
 # Limpa todos os pontos do ecra
-=======
-# Limpa todos os pontos do ecrï¿½
->>>>>>> a8c59333eeaedf1fbfd5330406da6e4c970968b9
 # Argumentos: nenhum
 # Retorno: nenhum
 
@@ -141,46 +137,27 @@ cleanScreen:
     la a3, LED_MATRIX_0_BASE     #Carrega o vetor que se ve no ecra
     la a4, LED_MATRIX_0_BASE     #Carrega o segundo vetor que se ve no ecra
     
-<<<<<<< HEAD
     #Obtem o vetor que comeca no fim do ecra
-=======
-    #Gets the second display vector to the other end
->>>>>>> a8c59333eeaedf1fbfd5330406da6e4c970968b9
     addi t0, zero, 4
     mul t0, t0, a2
     add a4, a4, t0
     li a5, white                 #Define a cor
     
 cleanloop:
-<<<<<<< HEAD
     bgt a3, a4, endcleanloop       #Se ambos os vetores se encontram, a funcao acaba
     sw a5, 0(a3)                   #Muda a cor no inicio
-=======
-    bgt a3, a4, endcleanloop      #If both vectors pointers meet, ends loop
-    sw a5, 0(a3)                  #Changes Colour in the begining
->>>>>>> a8c59333eeaedf1fbfd5330406da6e4c970968b9
     sw a5, 4(a3)
     sw a5, 8(a3)
     sw a5, 12(a3)
     
-<<<<<<< HEAD
     sw a5, 0(a4)                   #Muda a cor no fim
-=======
-    sw a5, 0(a4)                  #Changes Colour in the end
->>>>>>> a8c59333eeaedf1fbfd5330406da6e4c970968b9
     sw a5, -4(a4)
     sw a5, -8(a4)
     sw a5, -12(a4)
     
-<<<<<<< HEAD
     addi a3, a3, 16                #Vai para o proximo
     addi a4, a4, -16               #Vai para o proximo
     j cleanloop                    #Reinicia o loop
-=======
-    addi a3, a3, 16                #Jumps to next
-    addi a4, a4, -16                #Jumps to next
-    j cleanloop                   #Returns to loop
->>>>>>> a8c59333eeaedf1fbfd5330406da6e4c970968b9
     
 endcleanloop:
     jr ra                          #Retorna ao ponto de chamada
@@ -193,26 +170,17 @@ endcleanloop:
 
 printClusters:
     # POR IMPLEMENTAR (1a e 2a parte)
-<<<<<<< HEAD
     la t0, points         #Da load ao vetor dos pontos
     lw t1, n_points       #Da load ao numero de pontos
     li a2, red            #Da load a' cor
     addi sp, sp, -4       #Guarda memoria na stack
     sw ra, 0(sp)          #Guarda o endereco de retorno e vai para printLoop
-=======
-    la t0, points         #Loads Cluster Points Vector
-    lw t1, n_points       #Loads Number of Points
-    li a2, red            #Loads Colour
-    addi sp, sp, -4       #Allocates Memory in Stack
-    sw ra, 0(sp)          #Saves Return Address and goes to PrintLoop
->>>>>>> a8c59333eeaedf1fbfd5330406da6e4c970968b9
   
 ### printLoop
 # Printa pontos num vetor
 # Argumentos: nenhum
 # Retorno: nenhum
 printLoop:
-<<<<<<< HEAD
     beqz t1, end           #Condicao de finalizacao
     lw a0, 0(t0)           #Da load ao ponto X
     lw a1, 4(t0)           #Da load ao ponto Y
@@ -224,20 +192,6 @@ end:
     lw ra, 0(sp)           #Da load ao endereco de retorno
     addi sp, sp, 4         #Liberta espaco na stack     
     jr ra                  #Retorna para o ponto de chamada
-=======
-    beqz t1, end           #End Condition
-    lw a0, 0(t0)           #Loads X Point
-    lw a1, 4(t0)           #Loads Y Point
-    jal ra, printPoint     #Calls PrintPoint Function
-    addi t0, t0, 8         #Jumps to next point
-    addi t1, t1, -1        #Loop Counter
-    j printLoop            #Goes to Print Loop
-    
-end:
-    lw ra, 0(sp)           #Loads Return Adress
-    addi sp, sp, 4         #Free Stack Memory       
-    jr ra                  #Returns to where function was called
->>>>>>> a8c59333eeaedf1fbfd5330406da6e4c970968b9
 
 ### printCentroids
 # Pinta os centroides na LED matrix
@@ -245,22 +199,12 @@ end:
 # Argumentos: nenhum
 # Retorno: nenhum
 printCentroids:
-<<<<<<< HEAD
     la t0, centroids       #Da load ao vetor de centroids
     lw t1, k               #Da load ao numero de centroids
     li a2, black           #Da load a' cor do centroid
     addi sp, sp, -4        #Guarda espaco na stack
     sw ra, 0(sp)           #Guarda o endereco de retorno
     j printLoop            #Comeca o loop
-=======
-    # POR IMPLEMENTAR (1a e 2a parte)
-    la t0, centroids       #Loads Centroid Vectors
-    lw t1, k               #Loads Number of Centroids
-    li a2, black           #Loads Colour of Centroid
-    addi sp, sp, -4        #Allocate Space in stack
-    sw ra, 0(sp)           #Saves Adress
-    j printLoop            #Starts Loop
->>>>>>> a8c59333eeaedf1fbfd5330406da6e4c970968b9
     
 
 ### calculateCentroids
@@ -269,7 +213,6 @@ printCentroids:
 # Retorno: nenhum
 
 calculateCentroids:
-<<<<<<< HEAD
     addi sp, sp, -8        #Guarda espaco na stack para os argumentos
     la t0, centroids       #Da load ao vetor dos centroids
     la t1, points          #Da load ao vetor que contem os pontos
@@ -283,11 +226,11 @@ calculateCentroids:
     sw t2, 4(sp)           #Guarda espaco para uma variavel temporaria
     jal ra, loop_points    #Calcula a soma dos ponts com a funcao loop_points
 
-    lw t2, 4(sp)           #Da load a' variável temporaria
+    lw t2, 4(sp)           #Da load a' vari?vel temporaria
     div a0, t3, t2         #Calcula a coordenada X do centroid
     div a1, t4, t2         #Calcula a coordenada Y do centroid
     
-    lw ra, 0(sp)           #Dá load ao endereco de retorno
+    lw ra, 0(sp)           #D? load ao endereco de retorno
     sw a0, 0(t0)           #Guarda o ponto X do centroid no vetor
     sw a1, 4(t0)           #Guarda o ponto Y do centroid no vetor
     addi sp, sp, 8         #Liberta espaco na stack
@@ -306,46 +249,6 @@ loop_points:
     
 end_loop_points:
     jr ra                  #Retorna para o ponto de chamada
-=======
-    # POR IMPLEMENTAR (1a e 2a parte)
-    addi sp, sp, -8        #Allocate Space in Stack to save Arguments
-    la t0, centroids       #Loads centroids Vector
-    la t1, points          #Loads Points In vector
-    lw t2, n_points        #Loads Number of Points
-    
-    #Set variables to zero
-    addi t3, zero, 0
-    addi t4, zero, 0
-    
-    sw ra, 0(sp)           #Saves return adress
-    sw t2, 4(sp)           #Saves Temporary Variable
-    jal ra, loop_points    #Calculate Sum of Points calling Loop_Points function
-
-    lw t2, 4(sp)           #Loads The Temporary Varible Stored Before
-    div a0, t3, t2         #Calculates X Centroid
-    div a1, t4, t2         #Calculates Y Centroid
-    
-    lw ra, 0(sp)           #Loads Return Adress
-    sw a0, 0(t0)           #Saves Centroid X in vector
-    sw a1, 4(t0)           #Saves Centroid Y in vector
-    addi sp, sp, 8         #Frees Space in Stack 
-    jr ra                  #Return to where it was called
-    
-
-loop_points:
-    lw t5, 0(t1)           #Loads Current X point
-    lw t6, 4(t1)           #Loads Current Y point
-    
-    addi, t2, t2, -1       #Counter os Number os Points
-    add t3, t3, t5         #Adds X point to average X
-    add t4, t4, t6         #Adds Y point to average Y
-    blez t2, end_loop_points    #Checks Loop Endding Condition
-    addi t1, t1 8          #Jumps to next Point
-    j loop_points          #Continues Loop
-    
-end_loop_points:
-    jr ra                  #Return to where function was called
->>>>>>> a8c59333eeaedf1fbfd5330406da6e4c970968b9
 
 ### mainSingleCluster
 # Funcao principal da 1a parte do projeto.
@@ -356,13 +259,10 @@ end_loop_points:
 mainSingleCluster:                  #~~MAIN~~
     #1. Coloca k=1 (caso nao esteja a 1)
     # POR IMPLEMENTAR (1a parte)
-<<<<<<< HEAD
     la a0, Primeiro
     li a7, 4
     ecall
     
-=======
->>>>>>> a8c59333eeaedf1fbfd5330406da6e4c970968b9
     la t0, k
     addi t1, zero, 1
     sw t1, 0(t0)
@@ -382,14 +282,10 @@ mainSingleCluster:                  #~~MAIN~~
     jal ra, printClusters
 
     #4. calculateCentroids
-<<<<<<< HEAD
     la a0, Quarto
     li a7, 4
     ecall
     
-=======
-    # POR IMPLEMENTAR (1a parte)
->>>>>>> a8c59333eeaedf1fbfd5330406da6e4c970968b9
     jal ra, calculateCentroids
     
     #5. printCentroids
