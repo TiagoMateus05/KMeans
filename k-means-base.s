@@ -70,11 +70,12 @@ k:           .word 1
 
 # Strings para o output
 
-Primeiro:        .string "A resetar o n?mero de centroids...\n"
-Segundo:        .string "A limpar o ecr?...\n"
+Primeiro:        .string "A resetar o numero de centroids...\n"
+Segundo:        .string "A limpar o ecra...\n"
 Terceiro:        .string "A preencher os pontos dos clusters...\n"
 Quarto:        .string "A calcular o centroid...\n"
 Quinto:        .string "A preencher o ponto correspondente ao centroid...\n"
+Final:        .string "Terminar a execucao 0"
 
 
 # Definicoes de cores a usar no projeto 
@@ -86,6 +87,8 @@ colors:      .word 0xff0000, 0x00ff00, 0x0000ff  # Cores dos pontos do cluster 0
 .equ        red           0xff0000
 .equ        green         0x00ff00
 .equ        blue          0x0000ff
+.equ        lightpurple        0xeceae4
+.equ        purple        0xb28dff
 
 
 # Codigo
@@ -98,6 +101,9 @@ colors:      .word 0xff0000, 0x00ff00, 0x0000ff  # Cores dos pontos do cluster 0
     #jal mainKMeans
     
     # Termina o programa (chamando chamada sistema)
+    la a0, Final
+    li a7, 4
+    ecall
     li a7, 10
     ecall
 
@@ -141,7 +147,7 @@ cleanScreen:
     addi t0, zero, 4
     mul t0, t0, a2
     add a4, a4, t0
-    li a5, white                 #Define a cor
+    li a5, lightpurple             #Define a cor
     
 cleanloop:
     bgt a3, a4, endcleanloop       #Se ambos os vetores se encontram, a funcao acaba
@@ -172,7 +178,7 @@ printClusters:
     # POR IMPLEMENTAR (1a e 2a parte)
     la t0, points         #Da load ao vetor dos pontos
     lw t1, n_points       #Da load ao numero de pontos
-    li a2, red            #Da load a' cor
+    li a2, purple           #Da load a' cor
     addi sp, sp, -4       #Guarda memoria na stack
     sw ra, 0(sp)          #Guarda o endereco de retorno e vai para printLoop
   
@@ -296,6 +302,9 @@ mainSingleCluster:                  #~~MAIN~~
     jal ra, printCentroids
 
     #6. Termina
+    la a0, Final
+    li a7, 4
+    ecall
     termina:
         j termina
 #------------------------------------------------------------------------------------------
