@@ -55,13 +55,13 @@ points:      .word 16, 1, 17, 2, 18, 6, 20, 3, 21, 1, 17, 4, 21, 7, 16, 4, 21, 6
 
 
 # Valores de centroids e k a usar na 1a parte do projeto:
-centroids:   .word 0,0
-k:           .word 1
+#centroids:   .word 0,0
+#k:           .word 1
 
 # Valores de centroids, k e L a usar na 2a parte do prejeto:
-#centroids:   .word 0,0, 10,0, 0,10
-#k:           .word 3
-#L:           .word 10
+centroids:   .word 0,0, 10,0, 0,10
+k:           .word 3
+L:           .word 10
 
 # Abaixo devem ser declarados o vetor clusters (2a parte) e outras estruturas de dados
 # que o grupo considere necessarias para a solucao:
@@ -95,17 +95,17 @@ colors:      .word 0xff0000, 0x00ff00, 0x0000ff  # Cores dos pontos do cluster 0
  
 .text
     # Chama funcao principal da 1a parte do projeto
-    jal mainSingleCluster
+    #jal mainSingleCluster
 
     # Descomentar na 2a parte do projeto:
-    #jal mainKMeans
+    jal mainKMeans
     
     # Termina o programa (chamando chamada sistema)
-    la a0, Final
-    li a7, 4
-    ecall
-    li a7, 10
-    ecall
+    #la a0, Final
+    #li a7, 4
+    #ecall
+    #li a7, 10
+    #ecall
 
 
 ### printPoint
@@ -342,6 +342,31 @@ skip_module_y:
 
 nearestCluster:
     # POR IMPLEMENTAR (2a parte)
+    lw a6, k                        #Dar load ao numero de centroids
+    la a7, centroids                #Dar load ao vetor de centroids
+    li t0, 0                        #Inicializar a variavel onde vai estar o centroid final
+    li t2, 0
+ciclo:
+    beqz a6, fim                    #Se chegar ao fim do vetor dos centroids vai para o final da funcao
+    mv a2, a7                       #Colocar o x do centroid no registo correspondente
+    addi a7, a7, 4                  #Passar para o proximo valor do vetor, que e' o y
+    mv a3, a7                       #Colocar o y do centroid no registo correspondente
+    jal manhattanDistance           #Calcular a distancia entre o ponto dado e o centroid
+    addi a6, a6, -1                 #Diminuir o valor de k para sinalizar que ja se analisou 1 centroid
+    beqz t0, primeira_iteracao      #Se for a primeira iteracao, vai guardar os valores independentemente de se e' a distancia menor ou nao
+    bltu a0, t1, alterar            #Nas proximas, apenas altera as informacoes se a distancia calculada for menos que a anterior
+    addi t2, t2, 1                  #Aumenta o contador do indice dos clusters
+    j ciclo
+primeira_iteracao:
+    mv t1, a0                       #O t1 vai guardar a distancia entre os pontos do centroid anterior               #
+    j ciclo                         #Proxima iteracao do ciclo
+alterar:
+    mv t1, a0                       #Guarda o valor da distancia
+    addi t2, t2, 1                  #Aumenta o contador do indice dos clusters
+    mv t0, t2                       #Indica que o indice do cluster correspondente
+    j ciclo
+fim:
+    mv a0, t0                       #Coloca o indice do cluster no a0
     jr ra
 
 
@@ -352,4 +377,8 @@ nearestCluster:
 
 mainKMeans:  
     # POR IMPLEMENTAR (2a parte)
+    li a0, 4
+    li a1, 2
+    jal nearestCluster
     jr ra
+    
