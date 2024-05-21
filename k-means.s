@@ -319,6 +319,17 @@ mainSingleCluster:                  #~~MAIN~~
 
 manhattanDistance:
     # POR IMPLEMENTAR (2a parte)
+    sub t0, a0, a2            #Calcular a diferenca entre os xs
+    sub t1, a1, a3            #Calcular a diferenca entre os ys
+    li t2, -1                 #Fazer load de um imediato para mais tarde calcular o modulo
+    
+    bgtz t0, skip_module_x    #Caso o modulo dos xs seja positivo nao e' necessario calcular o modulo
+    mul t0, t0, t2            #Caso o modulo dos xs seja negativo calcula-se o modulo com o imediato em t2
+skip_module_x: 
+    bgtz t1, skip_module_y    #Caso o modulo dos ys seja positivo nao e' necessario calcular o modulo
+    mul t1, t1, t2            #Caso o modulo dos xs seja negativo calcula-se o modulo com o imediato em t2
+skip_module_y:
+    add a0, t0, t1            #Fazer a conta final (modulo da diferenca dos xs mais modulo da diferenca dos ys)
     jr ra
 
 
