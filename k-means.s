@@ -439,9 +439,9 @@ nearestCluster:
     lw a6, k                        #Dar load ao numero de centroids
     la a7, centroids                #Dar load ao vetor de centroids
     li s3, 0                        #Inicializar a variavel onde vai estar o centroid final
-    li s2, -1
-    li t3, 0
-    sw a0, 4(sp)
+    li s2, -1                       #Inicia o indice dos centroids
+    li t3, 0                        #Variavel para iteracoes
+    sw a0, 4(sp)                    #Guarda o retorno
     
 ciclo:
     beqz a6, fim                    #Se chegar ao fim do vetor dos centroids vai para o final da funcao
@@ -459,18 +459,18 @@ ciclo:
     mv s1, a0                       #Guarda o valor da distancia
     addi s2, s2, 1                  #Aumenta o contador do indice dos clusters
     mv s3, s2                       #Indica que o indice do cluster correspondente
-    lw a0, 4(sp)
+    lw a0, 4(sp)                    #Carrega o x do ponto
     j ciclo
     
 skip_alterar:
-    lw a0, 4(sp)
+    lw a0, 4(sp)                    #Carrega o x do ponto
     addi s2, s2, 1                  #Aumenta o contador do indice dos clusters
     j ciclo
     
 primeira_iteracao:
     mv s1, a0                       #O t1 vai guardar a distancia entre os pontos do centroid anterior
-    lw a0, 4(sp)
-    addi t3, t3, 1
+    lw a0, 4(sp)                    #Carrega o x do ponto
+    addi t3, t3, 1                  #Coloca o "nao e primeira" como verdade
     addi s2, s2, 1                  #Aumenta o contador do indice dos clusters
     j ciclo                         #Proxima iteracao do ciclo
     
