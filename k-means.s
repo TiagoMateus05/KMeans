@@ -104,12 +104,13 @@ colors:      .word 0xff0000, 0x00ff00, 0x0000ff  # Cores dos pontos do cluster 0
     #jal mainSingleCluster
 
     # Descomentar na 2a parte do projeto:
+    jal DynamicMemoryAllocation_forPoints
     jal mainKMeans
     
     # Termina o programa (chamando chamada sistema)
     #la a0, Final
     #li a7, 4
-    ecall
+    #ecall
     li a7, 10
     ecall
 
@@ -191,7 +192,7 @@ printClusters:
 # Printa pontos num vetor
 # Argumentos: nenhum
 # Retorno: nenhum
-printLoop:
+printLoop_Points:
     beqz t1, end           #Condicao de finalizacao
     lw a0, 0(t0)           #Da load ao ponto X
     lw a1, 4(t0)           #Da load ao ponto Y
@@ -199,7 +200,7 @@ printLoop:
     addi t0, t0, 8         #Vai para o proximo ponto
     addi t1, t1, -1        #Contador do loop
     j printLoop            #Vai para a funcao printLoop
-end:
+end_Points:
     lw ra, 0(sp)           #Da load ao endereco de retorno
     addi sp, sp, 4         #Liberta espaco na stack     
     jr ra                  #Retorna para o ponto de chamada
@@ -216,7 +217,23 @@ printCentroids:
     addi sp, sp, -4        #Guarda espaco na stack
     sw ra, 0(sp)           #Guarda o endereco de retorno
     j printLoop            #Comeca o loop
-    
+
+### printLoop
+# Printa pontos num vetor
+# Argumentos: nenhum
+# Retorno: nenhum
+printLoop:
+    beqz t1, end           #Condicao de finalizacao
+    lw a0, 0(t0)           #Da load ao ponto X
+    lw a1, 4(t0)           #Da load ao ponto Y
+    jal ra, printPoint     #Chama a funcao printPoint
+    addi t0, t0, 8         #Vai para o proximo ponto
+    addi t1, t1, -1        #Contador do loop
+    j printLoop            #Vai para a funcao printLoop
+end:
+    lw ra, 0(sp)           #Da load ao endereco de retorno
+    addi sp, sp, 4         #Liberta espaco na stack     
+    jr ra                  #Retorna para o ponto de chamada
 
 ### calculateCentroids
 # Calcula os k centroides, a partir da distribuicao atual de pontos associados a cada agrupamento (cluster)
@@ -324,9 +341,14 @@ mainSingleCluster:                  #~~MAIN~~
 #Retorno: s10 - Inicio do endereço vetor, s11 - endereço variável do vetor
 DynamicMemoryAllocation_forPoints:
     lw t0, n_points
+    li t1, 3
+    mul t0, t0, t1
+    slli t0, t0, 2
+    sub s10, sp, t0
+    add s11, zero, s10
+    sub sp, sp, t0
+    jr ra
     
-
-
 #RandomNumberGenerator
 #Gera a Seed
 #Argumentos: Nenhum
@@ -416,41 +438,44 @@ nearestCluster:
     sw ra, 0(sp)
     lw a6, k                        #Dar load ao numero de centroids
     la a7, centroids                #Dar load ao vetor de centroids
-    li t0, 0                        #Inicializar a variavel onde vai estar o centroid final
-    li t2, 0
+    li s3, 0                        #Inicializar a variavel onde vai estar o centroid final
+    li s2, -1
     li t3, 0
     sw a0, 4(sp)
     
 ciclo:
     beqz a6, fim                    #Se chegar ao fim do vetor dos centroids vai para o final da funcao
     lw a2, 0(a7)                    #Colocar o x do centroid no registo correspondente
-    addi a7, a7, 4                  #Passar para o proximo valor do vetor, que e' o y
     lw a3, 4(a7)                    #Colocar o y do centroid no registo correspondente
+    addi a7, a7, 8                  #Passar para o proximo ponto
     
     jal manhattanDistance           #Calcular a distancia entre o ponto dado e o centroid
     
     addi a6, a6, -1                 #Diminuir o valor de k para sinalizar que ja se analisou 1 centroid
     beqz t3, primeira_iteracao      #Se for a primeira iteracao, vai guardar os valores independentemente de se e' a distancia menor ou nao
     bgtu a0, s1, skip_alterar       #Nas proximas, apenas altera as informacoes se a distancia calculada for menos que a anterior
-    addi t2, t2, 1                  #Aumenta o contador do indice dos clusters
-    addi a7, a7, 8
+    addi a7, a7, 4
     
     mv s1, a0                       #Guarda o valor da distancia
-    addi t2, t2, 1                  #Aumenta o contador do indice dos clusters
-    mv t0, t2                       #Indica que o indice do cluster correspondente
+    addi s2, s2, 1                  #Aumenta o contador do indice dos clusters
+    mv s3, s2                       #Indica que o indice do cluster correspondente
+    lw a0, 4(sp)
+    j ciclo
     
 skip_alterar:
     lw a0, 4(sp)
+    addi s2, s2, 1                  #Aumenta o contador do indice dos clusters
     j ciclo
     
 primeira_iteracao:
     mv s1, a0                       #O t1 vai guardar a distancia entre os pontos do centroid anterior
     lw a0, 4(sp)
     addi t3, t3, 1
+    addi s2, s2, 1                  #Aumenta o contador do indice dos clusters
     j ciclo                         #Proxima iteracao do ciclo
     
 fim:
-    mv a0, s1                       #Coloca o indice do cluster no a0
+    mv a0, s3                       #Coloca o indice do cluster no a0
     lw ra, 0(sp)
     addi sp, sp, 8
     jr ra
@@ -467,15 +492,17 @@ mainKMeans:
     addi sp, sp, -4
     sw ra, 0(sp)
     
-    jal cleanScreen
+    #jal cleanScreen
     
-    jal initializeCentroids
-    #la t0, points
-    #lw a0, 0(t0)
-    #lw a1, 4(t0)
-    #jal nearestCluster
+    #jal initializeCentroids
+    la t0, points
+    li a0, 0
+    li a1, 0
+    jal nearestCluster
     
-    jal printCentroids
+    #jal printCentroids
+    
+    #jal printClusters
     
     lw ra, 0(sp)
     addi sp, sp, 4
