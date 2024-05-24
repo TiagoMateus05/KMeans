@@ -77,9 +77,15 @@ Quarto:        .string "A calcular o centroid...\n"
 Quinto:        .string "A preencher o ponto correspondente ao centroid...\n"
 Final:        .string "Terminar a execucao 0"
 
+# Definicoes de RNG
+seed: .word 0    #Seed Definido pelo Clock low 32bits
+mult: .word 295409844
+.equ C 1         #Incrementecao de 1
+.equ mod 31      #Modulo para os 32 tamanho led
+
+
 
 # Definicoes de cores a usar no projeto 
-
 colors:      .word 0xff0000, 0x00ff00, 0x0000ff  # Cores dos pontos do cluster 0, 1, 2, etc.
 
 .equ        black         0
@@ -103,9 +109,9 @@ colors:      .word 0xff0000, 0x00ff00, 0x0000ff  # Cores dos pontos do cluster 0
     # Termina o programa (chamando chamada sistema)
     #la a0, Final
     #li a7, 4
-    #ecall
-    #li a7, 10
-    #ecall
+    ecall
+    li a7, 10
+    ecall
 
 
 ### printPoint
@@ -264,6 +270,9 @@ end_loop_points:
 mainSingleCluster:                  #~~MAIN~~
     #1. Coloca k=1 (caso nao esteja a 1)
     # POR IMPLEMENTAR (1a parte)
+    addi sp, sp, -4
+    sw ra, 0(sp)
+    
     la a0, Primeiro
     li a7, 4
     ecall
@@ -284,30 +293,87 @@ mainSingleCluster:                  #~~MAIN~~
     li a7, 4
     ecall
     
-    jal ra, printClusters
+    #jal ra, printClusters
 
     #4. calculateCentroids
     la a0, Quarto
     li a7, 4
     ecall
     
-    jal ra, calculateCentroids
+    #jal ra, calculateCentroids
     
     #5. printCentroids
     la a0, Quinto
     li a7, 4
     ecall
     
-    jal ra, printCentroids
+    #jal ra, printCentroids
 
     #6. Termina
     la a0, Final
     li a7, 4
     ecall
-    termina:
-        j termina
+    
+    lw ra, 0(sp)
+    addi sp, sp, 4
+    jr ra
 #------------------------------------------------------------------------------------------
+#DynamicMemoryAllocation_forPoints
+#Gera um vetor para guardar os pontos e os indice
+#Argumentos: Nenhum
+#Retorno: s10 - Inicio do endereço vetor, s11 - endereço variável do vetor
+DynamicMemoryAllocation_forPoints:
+    lw t0, n_points
+    
 
+
+#RandomNumberGenerator
+#Gera a Seed
+#Argumentos: Nenhum
+#Retorno: a0, x e a1, y
+
+RandomNumberGenerator:
+    li a0, 0
+    li a7, 30
+    ecall            #Carrega o atual Clock low 32bits
+    la t0, seed   
+    sw a0, 0(t0)     #Guarda o clock como seed
+    jr ra
+
+initializeCentroids:
+    addi sp, sp, -4    #Aloca memoria no stack
+    sw ra, 0(sp)       #Guarda o retorno ra no stack
+    
+    jal RandomNumberGenerator    #Gera um seed
+    la t0, centroids   #Carrega o vetor dos centroids
+    lw t1, k           #Carrega o numero de centroids
+    slli t1, t1, 1     #Multiplica por 2 (gera primeiro um x e no segundo ciclo um y)
+    la t6, seed        #carrega o endereço do seed do RNG
+    li t5, mod         #Carrega o modulo (31 atual, evita repeticoes de valores)
+
+centroidGenerateCicle:
+    blez t1, fim_ciclo_gerador    #Condicao de termino (quando gerar o x e y valores n vezes)
+    lw t2, 0(t6)       #Carrega a seed
+    lw t3, mult        #Carrega o multiplicador
+    
+    mul t2, t2, t3     #Multiplica a seed pelo multiplicador
+    sw t2, 0(t6)       #Guarda a nova seed
+    
+    addi t2, t2, 7     #Incrementa 7 (numero primo, evita repeticoes)
+    
+    remu t2, t2, t5    #Calcula o valor de 0 a 32
+    
+    
+    sw t2, 0(t0)       #Guarda o valor
+    addi t0, t0, 4     #Incrementa o proximo espaço
+    addi t1, t1, -1    #Decrementa o contador
+    j centroidGenerateCicle #Repete o ciclo para x e depois y até todos os pontos
+     
+fim_ciclo_gerador:
+    lw ra, 0(sp)       #Carrega endereço de retorno
+    addi sp, sp, 4     #Liberta memoria
+    jr ra              #Retorna a funcao 
+    
 
 ### manhattanDistance
 # Calcula a distancia de Manhattan entre (x0,y0) e (x1,y1)
@@ -319,6 +385,8 @@ mainSingleCluster:                  #~~MAIN~~
 
 manhattanDistance:
     # POR IMPLEMENTAR (2a parte)
+    addi sp, sp, -4
+    sw ra, 0(sp)
     sub t0, a0, a2            #Calcular a diferenca entre os xs
     sub t1, a1, a3            #Calcular a diferenca entre os ys
     li t2, -1                 #Fazer load de um imediato para mais tarde calcular o modulo
@@ -330,6 +398,8 @@ skip_module_x:
     mul t1, t1, t2            #Caso o modulo dos xs seja negativo calcula-se o modulo com o imediato em t2
 skip_module_y:
     add a0, t0, t1            #Fazer a conta final (modulo da diferenca dos xs mais modulo da diferenca dos ys)
+    lw ra, 0(sp)
+    addi sp, sp, 4
     jr ra
 
 
@@ -342,31 +412,47 @@ skip_module_y:
 
 nearestCluster:
     # POR IMPLEMENTAR (2a parte)
+    addi sp, sp, -8                 #0: ra, -4: a0 para x, 
+    sw ra, 0(sp)
     lw a6, k                        #Dar load ao numero de centroids
     la a7, centroids                #Dar load ao vetor de centroids
     li t0, 0                        #Inicializar a variavel onde vai estar o centroid final
     li t2, 0
+    li t3, 0
+    sw a0, 4(sp)
+    
 ciclo:
     beqz a6, fim                    #Se chegar ao fim do vetor dos centroids vai para o final da funcao
-    mv a2, a7                       #Colocar o x do centroid no registo correspondente
+    lw a2, 0(a7)                    #Colocar o x do centroid no registo correspondente
     addi a7, a7, 4                  #Passar para o proximo valor do vetor, que e' o y
-    mv a3, a7                       #Colocar o y do centroid no registo correspondente
+    lw a3, 4(a7)                    #Colocar o y do centroid no registo correspondente
+    
     jal manhattanDistance           #Calcular a distancia entre o ponto dado e o centroid
+    
     addi a6, a6, -1                 #Diminuir o valor de k para sinalizar que ja se analisou 1 centroid
-    beqz t0, primeira_iteracao      #Se for a primeira iteracao, vai guardar os valores independentemente de se e' a distancia menor ou nao
-    bltu a0, t1, alterar            #Nas proximas, apenas altera as informacoes se a distancia calculada for menos que a anterior
+    beqz t3, primeira_iteracao      #Se for a primeira iteracao, vai guardar os valores independentemente de se e' a distancia menor ou nao
+    bgtu a0, s1, skip_alterar       #Nas proximas, apenas altera as informacoes se a distancia calculada for menos que a anterior
     addi t2, t2, 1                  #Aumenta o contador do indice dos clusters
-    j ciclo
-primeira_iteracao:
-    mv t1, a0                       #O t1 vai guardar a distancia entre os pontos do centroid anterior               #
-    j ciclo                         #Proxima iteracao do ciclo
-alterar:
-    mv t1, a0                       #Guarda o valor da distancia
+    addi a7, a7, 8
+    
+    mv s1, a0                       #Guarda o valor da distancia
     addi t2, t2, 1                  #Aumenta o contador do indice dos clusters
     mv t0, t2                       #Indica que o indice do cluster correspondente
+    
+skip_alterar:
+    lw a0, 4(sp)
     j ciclo
+    
+primeira_iteracao:
+    mv s1, a0                       #O t1 vai guardar a distancia entre os pontos do centroid anterior
+    lw a0, 4(sp)
+    addi t3, t3, 1
+    j ciclo                         #Proxima iteracao do ciclo
+    
 fim:
-    mv a0, t0                       #Coloca o indice do cluster no a0
+    mv a0, s1                       #Coloca o indice do cluster no a0
+    lw ra, 0(sp)
+    addi sp, sp, 8
     jr ra
 
 
@@ -374,11 +460,24 @@ fim:
 # Executa o algoritmo *k-means*.
 # Argumentos: nenhum
 # Retorno: nenhum
-
+#--------------------------------------------------------------------------------------------
 mainKMeans:  
     # POR IMPLEMENTAR (2a parte)
-    li a0, 4
-    li a1, 2
-    jal nearestCluster
+    
+    addi sp, sp, -4
+    sw ra, 0(sp)
+    
+    jal cleanScreen
+    
+    jal initializeCentroids
+    #la t0, points
+    #lw a0, 0(t0)
+    #lw a1, 4(t0)
+    #jal nearestCluster
+    
+    jal printCentroids
+    
+    lw ra, 0(sp)
+    addi sp, sp, 4
     jr ra
     
