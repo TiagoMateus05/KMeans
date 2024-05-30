@@ -97,7 +97,7 @@ mult: .word 295409844
 
 
 # Definicoes de cores a usar no projeto 
-colors:      .word 0xff0000, 0x00ff00 , 0x0000ff  # Cores dos pontos do cluster 0, 1, 2, etc.
+colors:      .word 0xf3a0ad, 0x6d8777 , 0xb28dff  # Cores dos pontos do cluster 0, 1, 2, etc.
 
 .equ        black         0
 .equ        white         0xffffff
@@ -549,3 +549,4 @@ end_Iteration:
     addi sp, sp, 4
     jr ra
     
+    #1245367256789245789645q79645q7694579865q47896q435896754q37896q34589764q355q427895q42789
