@@ -70,7 +70,7 @@ points:      .word 16, 1, 17, 2, 18, 6, 20, 3, 21, 1, 17, 4, 21, 7, 16, 4, 21, 6
 #k:           .word 1
 
 # Valores de centroids, k e L a usar na 2a parte do prejeto:
-centroids:   .word 0,0, 10,0, 0,10
+centroids:   .word 0,0, 0,0 , 0,0
 k:           .word 3
 L:           .word 10
 
@@ -498,7 +498,6 @@ ciclo:
     addi a6, a6, -1                 #Diminuir o valor de k para sinalizar que ja se analisou 1 centroid
     beqz t3, primeira_iteracao      #Se for a primeira iteracao, vai guardar os valores independentemente de se e' a distancia menor ou nao
     bgtu a0, s1, skip_alterar       #Nas proximas, apenas altera as informacoes se a distancia calculada for menos que a anterior
-    addi a7, a7, 4
     
     mv s1, a0                       #Guarda o valor da distancia
     addi s2, s2, 1                  #Aumenta o contador do indice dos clusters
