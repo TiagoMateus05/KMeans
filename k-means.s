@@ -33,23 +33,34 @@
 
 #endif // RIPES_IO_HEADER
 
+#-------------------------------INFORMACOES DE UTILIZACAO-----------------------------------
+#Este Codigo Possui direitos de autores reservado as pessoas em cima referidas
+
+#Intrucoes:
+    #Cada vetor de pontos (points) deve conter o seu respetivo numero de pontos (n_points)
+    #E o respetivo vetor de indices (id_points)
+
 # Variaveis em memoria
 .data
 
 #Input A - linha inclinada
 #n_points:    .word 9
+#id_points:   .word 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 #points:      .word 0,0, 1,1, 2,2, 3,3, 4,4, 5,5, 6,6, 7,7 8,8
 
 #Input B - Cruz
 #n_points:    .word 5
+#id_points:   .word 0, 0, 0, 0, 0
 #points:     .word 4,2, 5,1, 5,2, 5,3 6,2
 
 #Input C
 #n_points:    .word 23
+#id_points:   .word 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 #points: .word 0,0, 0,1, 0,2, 1,0, 1,1, 1,2, 1,3, 2,0, 2,1, 5,3, 6,2, 6,3, 6,4, 7,2, 7,3, 6,8, 6,9, 7,8, 8,7, 8,8, 8,9, 9,7, 9,8
 
 #Input D
 n_points:    .word 30
+id_points:   .word 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 points:      .word 16, 1, 17, 2, 18, 6, 20, 3, 21, 1, 17, 4, 21, 7, 16, 4, 21, 6, 19, 6, 4, 24, 6, 24, 8, 23, 6, 26, 6, 26, 6, 23, 8, 25, 7, 26, 7, 20, 4, 21, 4, 10, 2, 10, 3, 11, 2, 12, 4, 13, 4, 9, 4, 9, 3, 8, 0, 10, 4, 10
 
 
@@ -86,14 +97,14 @@ mult: .word 295409844
 
 
 # Definicoes de cores a usar no projeto 
-colors:      .word 0xff0000, 0x00ff00, 0x0000ff  # Cores dos pontos do cluster 0, 1, 2, etc.
+colors:      .word 0xff0000, 0x00ff00 , 0x0000ff  # Cores dos pontos do cluster 0, 1, 2, etc.
 
 .equ        black         0
 .equ        white         0xffffff
 .equ        red           0xff0000
 .equ        green         0x00ff00
 .equ        blue          0x0000ff
-.equ        lightpurple        0xeceae4
+.equ        lightpurple   0xeceae4
 .equ        purple        0xb28dff
 
 
@@ -104,7 +115,7 @@ colors:      .word 0xff0000, 0x00ff00, 0x0000ff  # Cores dos pontos do cluster 0
     #jal mainSingleCluster
 
     # Descomentar na 2a parte do projeto:
-    jal DynamicMemoryAllocation_forPoints
+    #jal DynamicMemoryAllocation_forPoints
     jal mainKMeans
     
     # Termina o programa (chamando chamada sistema)
@@ -175,6 +186,8 @@ endcleanloop:
     jr ra                          #Retorna ao ponto de chamada
 
     
+    
+    
 ### printClusters
 # Pinta os agrupamentos na LED matrix com a cor correspondente.
 # Argumentos: nenhum
@@ -182,28 +195,52 @@ endcleanloop:
 
 printClusters:
     # POR IMPLEMENTAR (1a e 2a parte)
-    la t0, points         #Da load ao vetor dos pontos
     lw t1, n_points       #Da load ao numero de pontos
-    li a2, purple           #Da load a' cor
-    addi sp, sp, -4       #Guarda memoria na stack
+    la a5, id_points      #Carrega o vetor de indices dos pontos
+    la a4, points
+    addi sp, sp, -12       #Guarda memoria na stack
     sw ra, 0(sp)          #Guarda o endereco de retorno e vai para printLoop
   
-### printLoop
+### printLoop_Points
 # Printa pontos num vetor
 # Argumentos: nenhum
 # Retorno: nenhum
 printLoop_Points:
-    beqz t1, end           #Condicao de finalizacao
-    lw a0, 0(t0)           #Da load ao ponto X
-    lw a1, 4(t0)           #Da load ao ponto Y
+    beqz t1, end_Points    #Condicao de finalizacao
+    sw t1, 8(sp)
+    
+    lw a0, 0(a4)           #Da load ao ponto X
+    lw a1, 4(a4)           #Da load ao ponto Y
+    sw a0, 4(sp)           #Guarda o valor de X
+    
+    jal ra, nearestCluster
+    sw a0, 0(a5)
+    la t3, colors
+
+ciclo_cores:
+    blez a0, 16
+    addi t3, t3, 4
+    addi a0, a0, -1
+    j ciclo_cores
+    
+    lw a2, 0(t3)
+    lw a0, 4(sp)
     jal ra, printPoint     #Chama a funcao printPoint
-    addi t0, t0, 8         #Vai para o proximo ponto
+    
+    addi a4, a4, 8         #Vai para o proximo ponto
+    lw t1, 8(sp)
+    addi a5, a5, 4
     addi t1, t1, -1        #Contador do loop
-    j printLoop            #Vai para a funcao printLoop
+    j printLoop_Points     #Vai para a funcao printLoop
 end_Points:
     lw ra, 0(sp)           #Da load ao endereco de retorno
-    addi sp, sp, 4         #Liberta espaco na stack     
+    addi sp, sp, 12         #Liberta espaco na stack     
     jr ra                  #Retorna para o ponto de chamada
+
+
+
+
+
 
 ### printCentroids
 # Pinta os centroides na LED matrix
@@ -242,35 +279,42 @@ end:
 
 calculateCentroids:
     addi sp, sp, -8        #Guarda espaco na stack para os argumentos
+    sw ra, 0(sp)           #Guarda o endereco de retorno
     la t0, centroids       #Da load ao vetor dos centroids
-    la t1, points          #Da load ao vetor que contem os pontos
     lw t2, n_points        #Da load ao numero de pontos
+    li a2, 0
     
+    
+    la t1, points          #Da load ao vetor que contem os pontos
+    la s1, id_points
     #Colocar as variaveis a zero
     addi t3, zero, 0
     addi t4, zero, 0
     
-    sw ra, 0(sp)           #Guarda o endereco de retorno
     sw t2, 4(sp)           #Guarda espaco para uma variavel temporaria
     jal ra, loop_points    #Calcula a soma dos ponts com a funcao loop_points
 
-    lw t2, 4(sp)           #Da load a' vari?vel temporaria
+    lw t2, 4(sp)           #Da load a variavel temporaria
     div a0, t3, t2         #Calcula a coordenada X do centroid
     div a1, t4, t2         #Calcula a coordenada Y do centroid
     
-    lw ra, 0(sp)           #D? load ao endereco de retorno
+    addi a2, a2, 1
+    
+    lw ra, 0(sp)           #Da load ao endereco de retorno
     sw a0, 0(t0)           #Guarda o ponto X do centroid no vetor
     sw a1, 4(t0)           #Guarda o ponto Y do centroid no vetor
     addi sp, sp, 8         #Liberta espaco na stack
     jr ra                  #Retorna para o ponto de chamada
 
 loop_points:
+    bne a2, a3, skip
     lw t5, 0(t1)           #Da load ao valor X
     lw t6, 4(t1)           #Da load ao valor Y
     
     addi, t2, t2, -1       #Counter os Number os Points
-    add t3, t3, t5         #Adiciona o valor x a' media
-    add t4, t4, t6         #Adiciona o valor x a' media
+    add t3, t3, t5         #Adiciona o valor x a media
+    add t4, t4, t6         #Adiciona o valor x a media
+skip:
     blez t2, end_loop_points    #Verifica se o loop tem de acabar
     addi t1, t1 8          #Vai para o proximo ponto
     j loop_points          #Reinicia o loop
@@ -492,18 +536,16 @@ mainKMeans:
     addi sp, sp, -4
     sw ra, 0(sp)
     
-    #jal cleanScreen
+    jal cleanScreen
     
-    #jal initializeCentroids
-    la t0, points
-    li a0, 0
-    li a1, 0
-    jal nearestCluster
+    jal initializeCentroids
     
-    #jal printCentroids
+    bgtz s11, end_Iteration
+    jal printCentroids
     
-    #jal printClusters
+    jal printClusters
     
+end_Iteration:
     lw ra, 0(sp)
     addi sp, sp, 4
     jr ra
