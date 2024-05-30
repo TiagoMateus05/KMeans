@@ -70,7 +70,7 @@ points:      .word 16, 1, 17, 2, 18, 6, 20, 3, 21, 1, 17, 4, 21, 7, 16, 4, 21, 6
 #k:           .word 1
 
 # Valores de centroids, k e L a usar na 2a parte do prejeto:
-centroids:   .word 0,0, 10,0, 0,10
+centroids:   .word 4,18, 9,12, 8,26
 k:           .word 3
 L:           .word 10
 
@@ -81,12 +81,9 @@ L:           .word 10
 
 # Strings para o output
 
-Primeiro:        .string "A resetar o numero de centroids...\n"
-Segundo:        .string "A limpar o ecra...\n"
+Primeiro:        .string "A limpar o ecra...\n"
+Segundo:         .string "A gerar os centroids...\n"
 Terceiro:        .string "A preencher os pontos dos clusters...\n"
-Quarto:        .string "A calcular o centroid...\n"
-Quinto:        .string "A preencher o ponto correspondente ao centroid...\n"
-Final:        .string "Terminar a execucao 0"
 
 # Definicoes de RNG
 seed: .word 0    #Seed Definido pelo Clock low 32bits
@@ -194,7 +191,6 @@ endcleanloop:
 # Retorno: nenhum
 
 printClusters:
-    # POR IMPLEMENTAR (1a e 2a parte)
     lw t1, n_points       #Da load ao numero de pontos
     la a5, id_points      #Carrega o vetor de indices dos pontos
     la a4, points
@@ -331,58 +327,58 @@ end_loop_points:
 mainSingleCluster:                  #~~MAIN~~
     #1. Coloca k=1 (caso nao esteja a 1)
     # POR IMPLEMENTAR (1a parte)
-    addi sp, sp, -4
-    sw ra, 0(sp)
+    #addi sp, sp, -4
+    #sw ra, 0(sp)
     
-    la a0, Primeiro
-    li a7, 4
-    ecall
+    #la a0, Primeiro
+    #li a7, 4
+    #ecall
     
-    la t0, k
-    addi t1, zero, 1
-    sw t1, 0(t0)
+    #la t0, k
+    #addi t1, zero, 1
+    #sw t1, 0(t0)
     
     #2. cleanScreen
-    la a0, Segundo
-    li a7, 4
-    ecall
+    #la a0, Segundo
+    #li a7, 4
+    #ecall
     
-    jal ra, cleanScreen
+    #jal ra, cleanScreen
 
     #3. printClusters
-    la a0, Terceiro
-    li a7, 4
-    ecall
+    #la a0, Terceiro
+    #li a7, 4
+    #ecall
     
     #jal ra, printClusters
 
     #4. calculateCentroids
-    la a0, Quarto
-    li a7, 4
-    ecall
+    #la a0, Quarto
+    #li a7, 4
+    #ecall
     
     #jal ra, calculateCentroids
     
     #5. printCentroids
-    la a0, Quinto
-    li a7, 4
-    ecall
+    #la a0, Quinto
+    #li a7, 4
+    #ecall
     
     #jal ra, printCentroids
 
     #6. Termina
-    la a0, Final
-    li a7, 4
-    ecall
+    #la a0, Final
+    #li a7, 4
+    #ecall
     
-    lw ra, 0(sp)
-    addi sp, sp, 4
-    jr ra
+    #lw ra, 0(sp)
+    #addi sp, sp, 4
+    #jr ra
 #------------------------------------------------------------------------------------------
 #DynamicMemoryAllocation_forPoints
 #Gera um vetor para guardar os pontos e os indice
 #Argumentos: Nenhum
-#Retorno: s10 - Inicio do endere√ßo vetor, s11 - endere√ßo vari√°vel do vetor
+#Retorno: s10 - Inicio do endereÁo vetor, s11 - endereÁo vari·vel do vetor
 DynamicMemoryAllocation_forPoints:
     lw t0, n_points
     li t1, 3
@@ -414,7 +410,7 @@ initializeCentroids:
     la t0, centroids   #Carrega o vetor dos centroids
     lw t1, k           #Carrega o numero de centroids
     slli t1, t1, 1     #Multiplica por 2 (gera primeiro um x e no segundo ciclo um y)
-    la t6, seed        #carrega o endere√ßo do seed do RNG
+    la t6, seed        #carrega o endereÁo do seed do RNG
     li t5, mod         #Carrega o modulo (31 atual, evita repeticoes de valores)
 
 centroidGenerateCicle:
@@ -431,12 +427,12 @@ centroidGenerateCicle:
     
     
     sw t2, 0(t0)       #Guarda o valor
-    addi t0, t0, 4     #Incrementa o proximo espa√ßo
+    addi t0, t0, 4     #Incrementa o proximo espaÁo
     addi t1, t1, -1    #Decrementa o contador
-    j centroidGenerateCicle #Repete o ciclo para x e depois y at√© todos os pontos
+    j centroidGenerateCicle #Repete o ciclo para x e depois y atÈ todos os pontos
      
 fim_ciclo_gerador:
-    lw ra, 0(sp)       #Carrega endere√ßo de retorno
+    lw ra, 0(sp)       #Carrega endereÁo de retorno
     addi sp, sp, 4     #Liberta memoria
     jr ra              #Retorna a funcao 
     
@@ -450,7 +446,6 @@ fim_ciclo_gerador:
 # a0: distance
 
 manhattanDistance:
-    # POR IMPLEMENTAR (2a parte)
     addi sp, sp, -4
     sw ra, 0(sp)
     sub t0, a0, a2            #Calcular a diferenca entre os xs
@@ -477,7 +472,6 @@ skip_module_y:
 # a0: cluster index
 
 nearestCluster:
-    # POR IMPLEMENTAR (2a parte)
     addi sp, sp, -8                 #0: ra, -4: a0 para x, 
     sw ra, 0(sp)
     lw a6, k                        #Dar load ao numero de centroids
@@ -498,7 +492,6 @@ ciclo:
     addi a6, a6, -1                 #Diminuir o valor de k para sinalizar que ja se analisou 1 centroid
     beqz t3, primeira_iteracao      #Se for a primeira iteracao, vai guardar os valores independentemente de se e' a distancia menor ou nao
     bgtu a0, s1, skip_alterar       #Nas proximas, apenas altera as informacoes se a distancia calculada for menos que a anterior
-    addi a7, a7, 4
     
     mv s1, a0                       #Guarda o valor da distancia
     addi s2, s2, 1                  #Aumenta o contador do indice dos clusters
@@ -531,18 +524,26 @@ fim:
 # Retorno: nenhum
 #--------------------------------------------------------------------------------------------
 mainKMeans:  
-    # POR IMPLEMENTAR (2a parte)
-    
+
     addi sp, sp, -4
     sw ra, 0(sp)
     
+    li a7, 4
+    la a0, Primeiro
+    ecall
     jal cleanScreen
     
+    li a7, 4
+    la a0, Segundo
+    ecall
     jal initializeCentroids
     
     bgtz s11, end_Iteration
     jal printCentroids
     
+    li a7, 4
+    la a0, Terceiro
+    ecall
     jal printClusters
     
 end_Iteration:
