@@ -70,13 +70,13 @@ points:      .word 16, 1, 17, 2, 18, 6, 20, 3, 21, 1, 17, 4, 21, 7, 16, 4, 21, 6
 #k:           .word 1
 
 # Valores de centroids, k e L a usar na 2a parte do prejeto:
-<<<<<<< HEAD
 centroids:   .word 0,0, 0,0 , 0,0
-=======
-centroids:   .word 4,18, 9,12, 8,26
->>>>>>> 2
 k:           .word 3
 L:           .word 10
+
+#centroids:   .word 0,0, 0,0
+#k:           .word 2
+#L:           .word 10
 
 # Abaixo devem ser declarados o vetor clusters (2a parte) e outras estruturas de dados
 # que o grupo considere necessarias para a solucao:
@@ -245,12 +245,11 @@ end_Points:
 ### printCentroids
 # Pinta os centroides na LED matrix
 # Nota: deve ser usada a cor preta (black) para todos os centroides
-# Argumentos: nenhum
+# Argumentos: a2: cor
 # Retorno: nenhum
 printCentroids:
     la t0, centroids       #Da load ao vetor de centroids
     lw t1, k               #Da load ao numero de centroids
-    li a2, black           #Da load a' cor do centroid
     addi sp, sp, -4        #Guarda espaco na stack
     sw ra, 0(sp)           #Guarda o endereco de retorno
     j printLoop            #Comeca o loop
@@ -278,49 +277,68 @@ end:
 # Retorno: nenhum
 
 calculateCentroids:
-    addi sp, sp, -8        #Guarda espaco na stack para os argumentos
+    addi sp, sp, -4        #Guarda espaco na stack para os argumentos
     sw ra, 0(sp)           #Guarda o endereco de retorno
     la t0, centroids       #Da load ao vetor dos centroids
+    lw s2, k               #Da load ao numero de centroids
+    addi a2, zero, 0    #para indices
+    
+loop_points_exterior:  
+    blez s2, termina
+    
     lw t2, n_points        #Da load ao numero de pontos
-    li a2, 0
-    
-    
     la t1, points          #Da load ao vetor que contem os pontos
-    la s1, id_points
+    la s1, id_points       #Da load ao vetor que contem os indices dos pontos
+    
     #Colocar as variaveis a zero
-    addi t3, zero, 0
-    addi t4, zero, 0
+    addi t3, zero, 0    #para x
+    addi t4, zero, 0    #para y
+    addi a4, zero, 0    #para o numero de pontos usados
     
-    sw t2, 4(sp)           #Guarda espaco para uma variavel temporaria
-    jal ra, loop_points    #Calcula a soma dos ponts com a funcao loop_points
 
-    lw t2, 4(sp)           #Da load a variavel temporaria
-    div a0, t3, t2         #Calcula a coordenada X do centroid
-    div a1, t4, t2         #Calcula a coordenada Y do centroid
+    loop_points_interior:
+        blez t2, termina_interior
+        lw a3, 0(s1)           #Carrega o indice do ponto atual
+        bne a2, a3, skip_se_nao_indice
     
-    addi a2, a2, 1
+        lw t5, 0(t1)           #Da load ao valor X
+        lw t6, 4(t1)           #Da load ao valor Y
     
-    lw ra, 0(sp)           #Da load ao endereco de retorno
+        add t3, t3, t5         #Adiciona o valor x a media
+        add t4, t4, t6         #Adiciona o valor x a media
+        addi a4, a4, 1         #Incrementa em 1 o ponto usado
+        
+    skip_se_nao_indice:
+        addi t1, t1, 8         #Avanca para o proximo ponto
+        addi s1, s1, 4         #Avanca para o proximo indice correspondente ao ponto
+        addi t2, t2, -1        #Decrementa a contagem do loop interno
+        j loop_points_interior
+    
+    termina_interior:
+    add t5, t3, t4         #Soma a soma dos x e y
+    beqz t5, nao_altera_centroid    #Caso a soma de x e a soma de y seja zero, nao muda o valor
+    
+    div a0, t3, a4         #Calcula a coordenada X do centroid
+    div a1, t4, a4         #Calcula a coordenada Y do centroid
+    
     sw a0, 0(t0)           #Guarda o ponto X do centroid no vetor
     sw a1, 4(t0)           #Guarda o ponto Y do centroid no vetor
-    addi sp, sp, 8         #Liberta espaco na stack
-    jr ra                  #Retorna para o ponto de chamada
+    
+nao_altera_centroid:
+    addi t0, t0, 8         #Avanca para o proximo centroid
+    addi s2, s2, -1        #Decrementa a contagem do loop interno
+    addi a2, a2, 1
+    j loop_points_exterior
 
-loop_points:
-    bne a2, a3, skip
-    lw t5, 0(t1)           #Da load ao valor X
-    lw t6, 4(t1)           #Da load ao valor Y
+termina:
     
-    addi, t2, t2, -1       #Counter os Number os Points
-    add t3, t3, t5         #Adiciona o valor x a media
-    add t4, t4, t6         #Adiciona o valor x a media
-skip:
-    blez t2, end_loop_points    #Verifica se o loop tem de acabar
-    addi t1, t1 8          #Vai para o proximo ponto
-    j loop_points          #Reinicia o loop
-    
-end_loop_points:
+    lw ra, 0(sp)           #Da load ao endereco de retorno
+    addi sp, sp, 4         #Liberta espaco na stack
     jr ra                  #Retorna para o ponto de chamada
+    
+reset_centroids:
+    addi sp, sp, 4
+    j reset_centroids_no_data
 
 ### mainSingleCluster
 # Funcao principal da 1a parte do projeto.
@@ -382,7 +400,7 @@ mainSingleCluster:                  #~~MAIN~~
 #DynamicMemoryAllocation_forPoints
 #Gera um vetor para guardar os pontos e os indice
 #Argumentos: Nenhum
-#Retorno: s10 - Inicio do endereço vetor, s11 - endereço variável do vetor
+#Retorno: s10 - Inicio do endereï¿½o vetor, s11 - endereï¿½o variï¿½vel do vetor
 DynamicMemoryAllocation_forPoints:
     lw t0, n_points
     li t1, 3
@@ -414,7 +432,7 @@ initializeCentroids:
     la t0, centroids   #Carrega o vetor dos centroids
     lw t1, k           #Carrega o numero de centroids
     slli t1, t1, 1     #Multiplica por 2 (gera primeiro um x e no segundo ciclo um y)
-    la t6, seed        #carrega o endereço do seed do RNG
+    la t6, seed        #carrega o endereï¿½o do seed do RNG
     li t5, mod         #Carrega o modulo (31 atual, evita repeticoes de valores)
 
 centroidGenerateCicle:
@@ -431,12 +449,12 @@ centroidGenerateCicle:
     
     
     sw t2, 0(t0)       #Guarda o valor
-    addi t0, t0, 4     #Incrementa o proximo espaço
+    addi t0, t0, 4     #Incrementa o proximo espaï¿½o
     addi t1, t1, -1    #Decrementa o contador
-    j centroidGenerateCicle #Repete o ciclo para x e depois y até todos os pontos
+    j centroidGenerateCicle #Repete o ciclo para x e depois y atï¿½ todos os pontos
      
 fim_ciclo_gerador:
-    lw ra, 0(sp)       #Carrega endereço de retorno
+    lw ra, 0(sp)       #Carrega endereï¿½o de retorno
     addi sp, sp, 4     #Liberta memoria
     jr ra              #Retorna a funcao 
     
@@ -528,21 +546,25 @@ fim:
 # Retorno: nenhum
 #--------------------------------------------------------------------------------------------
 mainKMeans:  
-
     addi sp, sp, -4
     sw ra, 0(sp)
+    lw s11, L
+
+reset_centroids_no_data:
     
     li a7, 4
     la a0, Primeiro
     ecall
     jal cleanScreen
-    
+
     li a7, 4
     la a0, Segundo
     ecall
     jal initializeCentroids
     
-    bgtz s11, end_Iteration
+L_iterations:
+    blez s11, end_Iteration
+    li a2, black           #Da load a cor do centroid para colocar
     jal printCentroids
     
     li a7, 4
@@ -550,13 +572,16 @@ mainKMeans:
     ecall
     jal printClusters
     
+    li a2, white           #Da load a cor do centroid para remover
+    jal printCentroids
+    
+    jal calculateCentroids
+    li a2, black           #Da load a cor do centroid para colocar
+    jal printCentroids
+    
+    addi s11, s11, -1
+    j L_iterations
 end_Iteration:
     lw ra, 0(sp)
     addi sp, sp, 4
     jr ra
-    
-<<<<<<< HEAD
-    #1245367256789245789645q79645q7694579865q478912312312311231236q435896754q37896q34589764q355q427895q42789
-=======
-#es gay
->>>>>>> 2
