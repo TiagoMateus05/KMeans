@@ -40,7 +40,7 @@
     #Cada vetor de pontos (points) deve conter o seu respetivo numero de pontos (n_points)
     #E o respetivo vetor de indices (id_points), introduzidos no .data
     
-    #Caso pretenda colocar mais k, tenha em atenção ao numero de cores que deseja, tal como
+    #Caso pretenda colocar mais k, tenha em atenï¿½ï¿½o ao numero de cores que deseja, tal como
     #As cores pretendidas, introduzido no .data
 
 #-------------------------------------------------------------------------------------------
@@ -580,7 +580,7 @@ mainKMeans:
 
 reset_centroids_no_data:
     
-    #Inicializa centroids através de RNG e envia mensagem para a consola
+    #Inicializa centroids atravï¿½s de RNG e envia mensagem para a consola
     li a7, 4
     la a0, Segundo
     ecall
@@ -603,7 +603,10 @@ L_iterations:
     ecall
     jal printClusters
     
-    #Remove os centroids para recalcular e calcula os novos centroids
+    #OTIMIZACAO
+    #Remove os centroids para recalcular os novos centroids
+    #Assim remove a necessidade em cada iteracao de usar o cleanScreen, sendo uma funcao
+    #Demorada. Os clusters irao ser reescritos na proxima chamada da funcao printCentroids
     li a2, lightpurple           #Da load a cor do centroid para remover
     jal printCentroids     #Remove os centroids
     
