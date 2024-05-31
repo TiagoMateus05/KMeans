@@ -40,7 +40,7 @@
     #Cada vetor de pontos (points) deve conter o seu respetivo numero de pontos (n_points)
     #E o respetivo vetor de indices (id_points), introduzidos no .data
     
-    #Caso pretenda colocar mais k, tenha em atenÃ§Ã£o ao numero de cores que deseja, tal como
+    #Caso pretenda colocar mais k, tenha em atenção ao numero de cores que deseja, tal como
     #As cores pretendidas, introduzido no .data
 
 #-------------------------------------------------------------------------------------------
@@ -454,7 +454,7 @@ initializeCentroids:
     la t0, centroids   #Carrega o vetor dos centroids
     lw t1, k           #Carrega o numero de centroids
     slli t1, t1, 1     #Multiplica por 2 (gera primeiro um x e no segundo ciclo um y)
-    la t6, seed        #carrega o endereï¿½o do seed do RNG
+    la t6, seed        #carrega o endere?o do seed do RNG
     li t5, mod         #Carrega o modulo (31 atual, evita repeticoes de valores)
 
 centroidGenerateCicle:
@@ -471,12 +471,12 @@ centroidGenerateCicle:
     
     
     sw t2, 0(t0)       #Guarda o valor
-    addi t0, t0, 4     #Incrementa o proximo espaï¿½o
+    addi t0, t0, 4     #Incrementa o proximo espa?o
     addi t1, t1, -1    #Decrementa o contador
-    j centroidGenerateCicle #Repete o ciclo para x e depois y atï¿½ todos os pontos
+    j centroidGenerateCicle #Repete o ciclo para x e depois y at? todos os pontos
      
 fim_ciclo_gerador:
-    lw ra, 0(sp)       #Carrega endereï¿½o de retorno
+    lw ra, 0(sp)       #Carrega endere?o de retorno
     addi sp, sp, 4     #Liberta memoria
     jr ra              #Retorna a funcao 
     
@@ -580,7 +580,7 @@ mainKMeans:
 
 reset_centroids_no_data:
     
-    #Inicializa centroids atravÃ©s de RNG e envia mensagem para a consola
+    #Inicializa centroids através de RNG e envia mensagem para a consola
     li a7, 4
     la a0, Segundo
     ecall
@@ -604,7 +604,7 @@ L_iterations:
     jal printClusters
     
     #Remove os centroids para recalcular e calcula os novos centroids
-    li a2, white           #Da load a cor do centroid para remover
+    li a2, lightpurple           #Da load a cor do centroid para remover
     jal printCentroids     #Remove os centroids
     
     jal calculateCentroids
