@@ -6,7 +6,7 @@ KMeans Assembly
   The objective of this project is to be able to run a kmeans algorithm, thus, calculating n clusters of n points within a provided data.
   While the code is written in RISC-V, it is fairly easy to change the input in the .data section.
 
-###Inputs:
+### Inputs:
   Points:
   - n_points: "number of points"
   - id_points: "fill with 0 the number of points"
@@ -17,7 +17,7 @@ KMeans Assembly
   - K: "number of centroids"
   - L: "number of iterations"
 
-##How to run:
+## How to run:
   You need to setup a display and put the configurations inside the program. The display can contain any size you want. Running on a emulator such as Ripes is recommended for the simplicity. Either way, just set up the inputs (explained in the top) and run the program. It should be noted that there is no "step-by-step" runner, so, once you press it. It will calculate the final clusters.
   The program is only stoped when the number of iterations is done. Since the centroids are randomly chosen (using the clock time), there will be certain calculations wich a cluster ends up not having any points. Note that the base Kmeans algorithm has this situation in mind.
 
